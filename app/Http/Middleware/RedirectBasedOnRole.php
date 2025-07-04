@@ -15,11 +15,11 @@ final class RedirectBasedOnRole
         if (auth()->check()) {
             $user = auth()->user();
             
-            if ($user->hasRole('admin')) {
+            if ($user->canAccessAdminDashboard()) {
                 return redirect()->route('filament.admin.pages.dashboard');
             }
             
-            if ($user->hasRole('organizer')) {
+            if ($user->canAccessOrganizerDashboard()) {
                 return redirect()->route('filament.organizer.pages.dashboard');
             }
             

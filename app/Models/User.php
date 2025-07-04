@@ -70,4 +70,58 @@ final class User extends Authenticatable
             ->where('organisation_user.user_id', $this->id)
             ->where('organisation_user.role', 'admin');
     }
+
+    /**
+     * Controleer of gebruiker toegang heeft tot een specifieke organisatie
+     */
+    public function hasAccessToOrganisation(Organisation $organisation): bool
+    {
+        if ($this->hasRole('admin')) {
+            return true;
+        }
+
+        return $this->organisations()
+            ->where('organisation_id', $organisation->id)
+            ->exists();
+    }
+
+    /**
+     * Haal de primaire organisatie van de gebruiker op
+     */
+    public function getPrimaryOrganisation(): ?Organisation
+    {
+        return $this->organisations()->first();
+    }
+
+    /**
+     * Controleer of gebruiker een specifieke permissie heeft voor een organisatie
+     */
+    public function canForOrganisation(string $permission, Organisation $organisation): bool
+    {
+        if ($this->hasRole('admin')) {
+            return $this->can($permission);
+        }
+
+        if ($this->hasRole('organizer')) {
+            return $this->can($permission) && $this->hasAccessToOrganisation($organisation);
+        }
+
+        return false;
+    }
+
+    /**
+     * Controleer of gebruiker toegang heeft tot admin dashboard
+     */
+    public function canAccessAdminDashboard(): bool
+    {
+        return $this->hasRole('admin') && $this->can('access_admin_dashboard');
+    }
+
+    /**
+     * Controleer of gebruiker toegang heeft tot organizer dashboard
+     */
+    public function canAccessOrganizerDashboard(): bool
+    {
+        return $this->hasRole('organizer') && $this->can('access_organizer_dashboard');
+    }
 }
