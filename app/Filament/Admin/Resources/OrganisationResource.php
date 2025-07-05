@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Filament\Admin\Resources;
 
 use App\Filament\Admin\Resources\OrganisationResource\Pages;
-use App\Filament\Admin\Resources\OrganisationResource\RelationManagers;
 use App\Models\Organisation;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -13,18 +12,15 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
-use Illuminate\Support\Collection;
+use Illuminate\Database\Eloquent\Model;
 
 final class OrganisationResource extends Resource
 {
     protected static ?string $model = Organisation::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-building-office-2';
-    
-    protected static ?string $navigationGroup = 'Platform Management';
-    
+    protected static ?string $navigationGroup = 'Platformbeheer';
     protected static ?int $navigationSort = 1;
+    protected static ?string $navigationIcon = 'heroicon-o-building-office';
 
     public static function form(Form $form): Form
     {
@@ -36,47 +32,71 @@ final class OrganisationResource extends Resource
                             ->label('Naam')
                             ->required()
                             ->maxLength(255),
+
                         Forms\Components\TextInput::make('slug')
                             ->label('Slug')
                             ->required()
-                            ->unique(ignoreRecord: true)
-                            ->maxLength(255),
+                            ->maxLength(255)
+                            ->unique(ignoreRecord: true),
+
                         Forms\Components\Textarea::make('description')
                             ->label('Beschrijving')
-                            ->rows(3)
-                            ->maxLength(1000),
-                    ])->columns(2),
-                
-                Forms\Components\Section::make('Contact Informatie')
-                    ->schema([
+                            ->maxLength(1000)
+                            ->columnSpanFull(),
+
                         Forms\Components\TextInput::make('email')
-                            ->label('E-mail')
+                            ->label('Email')
                             ->email()
+                            ->required()
                             ->maxLength(255),
+
                         Forms\Components\TextInput::make('phone')
                             ->label('Telefoon')
                             ->tel()
                             ->maxLength(255),
+
                         Forms\Components\TextInput::make('website')
                             ->label('Website')
                             ->url()
                             ->maxLength(255),
-                    ])->columns(3),
-                
-                Forms\Components\Section::make('Instellingen')
+                    ])
+                    ->columns(2),
+
+                Forms\Components\Section::make('Adres Informatie')
                     ->schema([
-                        Forms\Components\FileUpload::make('logo')
-                            ->label('Logo')
-                            ->image()
-                            ->directory('organisations/logos'),
+                        Forms\Components\TextInput::make('address')
+                            ->label('Adres')
+                            ->maxLength(255),
+
+                        Forms\Components\TextInput::make('city')
+                            ->label('Stad')
+                            ->maxLength(255),
+
+                        Forms\Components\TextInput::make('postal_code')
+                            ->label('Postcode')
+                            ->maxLength(255),
+
+                        Forms\Components\TextInput::make('country')
+                            ->label('Land')
+                            ->maxLength(255),
+                    ])
+                    ->columns(2),
+
+                Forms\Components\Section::make('Status')
+                    ->schema([
                         Forms\Components\Toggle::make('is_active')
                             ->label('Actief')
                             ->default(true),
-                        Forms\Components\KeyValue::make('settings')
-                            ->label('Instellingen')
-                            ->keyLabel('Sleutel')
-                            ->valueLabel('Waarde'),
-                    ])->columns(2),
+
+                        Forms\Components\DatePicker::make('created_at')
+                            ->label('Aangemaakt op')
+                            ->disabled(),
+
+                        Forms\Components\DatePicker::make('updated_at')
+                            ->label('Laatst bijgewerkt')
+                            ->disabled(),
+                    ])
+                    ->columns(3),
             ]);
     }
 
@@ -84,41 +104,40 @@ final class OrganisationResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\ImageColumn::make('logo')
-                    ->label('Logo')
-                    ->circular()
-                    ->size(40),
                 Tables\Columns\TextColumn::make('name')
                     ->label('Naam')
                     ->searchable()
                     ->sortable(),
+
                 Tables\Columns\TextColumn::make('email')
-                    ->label('E-mail')
+                    ->label('Email')
                     ->searchable()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('phone')
-                    ->label('Telefoon')
-                    ->searchable(),
+
+                Tables\Columns\TextColumn::make('city')
+                    ->label('Stad')
+                    ->searchable()
+                    ->sortable(),
+
                 Tables\Columns\TextColumn::make('events_count')
                     ->label('Events')
                     ->counts('events')
                     ->sortable(),
+
                 Tables\Columns\TextColumn::make('users_count')
                     ->label('Gebruikers')
                     ->counts('users')
                     ->sortable(),
+
                 Tables\Columns\IconColumn::make('is_active')
                     ->label('Status')
                     ->boolean()
-                    ->trueIcon('heroicon-o-check-circle')
-                    ->falseIcon('heroicon-o-x-circle')
-                    ->trueColor('success')
-                    ->falseColor('danger'),
+                    ->sortable(),
+
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('Aangemaakt')
                     ->dateTime('d-m-Y H:i')
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->sortable(),
             ])
             ->filters([
                 Tables\Filters\TernaryFilter::make('is_active')
@@ -126,29 +145,40 @@ final class OrganisationResource extends Resource
                     ->placeholder('Alle organisaties')
                     ->trueLabel('Alleen actieve')
                     ->falseLabel('Alleen inactieve'),
+
+                Tables\Filters\Filter::make('created_at')
+                    ->form([
+                        Forms\Components\DatePicker::make('created_from')
+                            ->label('Vanaf'),
+                        Forms\Components\DatePicker::make('created_until')
+                            ->label('Tot'),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query
+                            ->when(
+                                $data['created_from'],
+                                fn (Builder $query, $date): Builder => $query->whereDate('created_at', '>=', $date),
+                            )
+                            ->when(
+                                $data['created_until'],
+                                fn (Builder $query, $date): Builder => $query->whereDate('created_at', '<=', $date),
+                            );
+                    }),
             ])
             ->actions([
-                Tables\Actions\ActionGroup::make([
-                    Tables\Actions\ViewAction::make(),
-                    Tables\Actions\EditAction::make(),
-                    Tables\Actions\Action::make('manage_users')
-                        ->label('Gebruikers beheren')
-                        ->icon('heroicon-o-users')
-                        ->url(fn (Organisation $record): string => route('filament.admin.resources.organisations.edit', $record) . '?activeTab=users'),
-                ]),
+                Tables\Actions\ViewAction::make(),
+                Tables\Actions\EditAction::make(),
+                Tables\Actions\Action::make('users')
+                    ->label('Gebruikers')
+                    ->icon('heroicon-m-users')
+                    ->url(fn (Organisation $record): string => route('filament.admin.resources.organisations.users', $record)),
+                Tables\Actions\Action::make('events')
+                    ->label('Events')
+                    ->icon('heroicon-m-calendar')
+                    ->url(fn (Organisation $record): string => route('filament.admin.resources.organisations.events', $record)),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\BulkAction::make('activate')
-                        ->label('Activeren')
-                        ->icon('heroicon-o-check-circle')
-                        ->color('success')
-                        ->action(fn (Collection $records) => $records->each->update(['is_active' => true])),
-                    Tables\Actions\BulkAction::make('deactivate')
-                        ->label('Deactiveren')
-                        ->icon('heroicon-o-x-circle')
-                        ->color('danger')
-                        ->action(fn (Collection $records) => $records->each->update(['is_active' => false])),
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ])
@@ -158,8 +188,7 @@ final class OrganisationResource extends Resource
     public static function getRelations(): array
     {
         return [
-            RelationManagers\UsersRelationManager::class,
-            RelationManagers\EventsRelationManager::class,
+            //
         ];
     }
 

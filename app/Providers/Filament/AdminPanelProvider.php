@@ -60,9 +60,10 @@ final class AdminPanelProvider extends PanelProvider
             ->brandName('Habesha Events Admin')
             ->favicon(asset('images/favicon.ico'))
             ->navigationGroups([
-                'Event Management',
-                'User Management',
-                'System',
+                'Platformbeheer',
+                'Eventbeheer',
+                'Statistieken & Feedback',
+                'Instellingen',
             ]);
     }
 }

@@ -18,11 +18,9 @@ final class TicketScanResource extends Resource
 {
     protected static ?string $model = TicketScan::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-qr-code';
-
-    protected static ?string $navigationGroup = 'Ticketing';
-
+    protected static ?string $navigationGroup = 'Event Beheer';
     protected static ?int $navigationSort = 4;
+    protected static ?string $navigationIcon = 'heroicon-o-qr-code';
 
     public static function form(Form $form): Form
     {

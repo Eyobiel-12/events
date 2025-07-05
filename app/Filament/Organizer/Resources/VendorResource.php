@@ -18,11 +18,9 @@ final class VendorResource extends Resource
 {
     protected static ?string $model = Vendor::class;
 
+    protected static ?string $navigationGroup = 'Event Details';
+    protected static ?int $navigationSort = 2;
     protected static ?string $navigationIcon = 'heroicon-o-users';
-
-    protected static ?string $navigationGroup = 'Vendors & Booths';
-
-    protected static ?int $navigationSort = 1;
 
     public static function form(Form $form): Form
     {
