@@ -53,12 +53,13 @@ Route::middleware(['auth'])->group(function () {
 });
 
 // Admin Feedback Routes
-Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
-    Route::get('/feedback', [FeedbackController::class, 'adminIndex'])->name('feedback.index');
-    Route::get('/feedback/{feedback}', [FeedbackController::class, 'adminShow'])->name('feedback.show');
-    Route::post('/feedback/{feedback}/approve', [FeedbackController::class, 'adminApprove'])->name('feedback.approve');
-    Route::post('/feedback/{feedback}/reject', [FeedbackController::class, 'adminReject'])->name('feedback.reject');
-});
+// Verwijderd omdat we nu Filament resources gebruiken
+// Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
+//     Route::get('/feedback', [FeedbackController::class, 'adminIndex'])->name('feedback.index');
+//     Route::get('/feedback/{feedback}', [FeedbackController::class, 'adminShow'])->name('feedback.show');
+//     Route::post('/feedback/{feedback}/approve', [FeedbackController::class, 'adminApprove'])->name('feedback.approve');
+//     Route::post('/feedback/{feedback}/reject', [FeedbackController::class, 'adminReject'])->name('feedback.reject');
+// });
 
 // Dashboard Routes - Eén dashboard voor alle gebruikers met automatische redirects
 Route::middleware(['auth', 'verified'])->group(function () {

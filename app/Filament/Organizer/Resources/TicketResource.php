@@ -19,11 +19,9 @@ final class TicketResource extends Resource
 {
     protected static ?string $model = Ticket::class;
 
+    protected static ?string $navigationGroup = 'Event Beheer';
+    protected static ?int $navigationSort = 2;
     protected static ?string $navigationIcon = 'heroicon-o-ticket';
-
-    protected static ?string $navigationGroup = 'Ticketing';
-
-    protected static ?int $navigationSort = 3;
 
     public static function form(Form $form): Form
     {

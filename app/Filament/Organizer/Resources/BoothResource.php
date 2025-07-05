@@ -18,11 +18,9 @@ final class BoothResource extends Resource
 {
     protected static ?string $model = Booth::class;
 
+    protected static ?string $navigationGroup = 'Event Details';
+    protected static ?int $navigationSort = 1;
     protected static ?string $navigationIcon = 'heroicon-o-building-storefront';
-
-    protected static ?string $navigationGroup = 'Vendors & Booths';
-
-    protected static ?int $navigationSort = 2;
 
     public static function form(Form $form): Form
     {
