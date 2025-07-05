@@ -11,10 +11,10 @@ return new class extends Migration
         Schema::table('ticket_types', function (Blueprint $table) {
             // Alleen toevoegen als ze nog niet bestaan
             if (!Schema::hasColumn('ticket_types', 'sale_start_date')) {
-                $table->timestamp('sale_start_date')->nullable()->after('sold_quantity');
+                $table->timestamp('sale_start_date')->nullable();
             }
             if (!Schema::hasColumn('ticket_types', 'sale_end_date')) {
-                $table->timestamp('sale_end_date')->nullable()->after('sale_start_date');
+                $table->timestamp('sale_end_date')->nullable();
             }
         });
     }

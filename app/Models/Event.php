@@ -64,6 +64,25 @@ final class Event extends Model
         return $this->hasMany(Feedback::class);
     }
 
+    public function getAverageRatingAttribute(): float
+    {
+        return $this->feedback()->approved()->avg('rating') ?? 0.0;
+    }
+
+    public function getTotalFeedbackCountAttribute(): int
+    {
+        return $this->feedback()->approved()->count();
+    }
+
+    public function getRatingDistributionAttribute(): array
+    {
+        $distribution = [];
+        for ($i = 1; $i <= 5; $i++) {
+            $distribution[$i] = $this->feedback()->approved()->withRating($i)->count();
+        }
+        return $distribution;
+    }
+
     public function ticketScans(): HasMany
     {
         return $this->hasMany(TicketScan::class);

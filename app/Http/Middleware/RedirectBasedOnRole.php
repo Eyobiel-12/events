@@ -15,16 +15,18 @@ final class RedirectBasedOnRole
         if (auth()->check()) {
             $user = auth()->user();
             
-            if ($user->canAccessAdminDashboard()) {
-                return redirect()->route('filament.admin.pages.dashboard');
+            // Admin gaat naar admin panel
+            if ($user->hasRole('admin')) {
+                return redirect('/admin');
             }
             
-            if ($user->canAccessOrganizerDashboard()) {
-                return redirect()->route('filament.organizer.pages.dashboard');
+            // Organizer gaat naar organizer dashboard
+            if ($user->hasRole('organizer')) {
+                return redirect('/organizer');
             }
             
-            // Default voor users
-            return redirect()->route('dashboard');
+            // Regular users blijven op de main dashboard
+            return $next($request);
         }
 
         return $next($request);

@@ -34,6 +34,7 @@ final class OrganizerPanelProvider extends PanelProvider
             ->discoverPages(in: app_path('Filament/Organizer/Pages'), for: 'App\\Filament\\Organizer\\Pages')
             ->pages([
                 Pages\Dashboard::class,
+                \App\Filament\Organizer\Pages\QrCheckin::class,
             ])
             ->discoverWidgets(in: app_path('Filament/Organizer/Widgets'), for: 'App\\Filament\\Organizer\\Widgets')
             ->widgets([

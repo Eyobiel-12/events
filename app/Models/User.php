@@ -71,6 +71,11 @@ final class User extends Authenticatable
             ->where('organisation_user.role', 'admin');
     }
 
+    public function feedback(): HasMany
+    {
+        return $this->hasMany(Feedback::class);
+    }
+
     /**
      * Controleer of gebruiker toegang heeft tot een specifieke organisatie
      */

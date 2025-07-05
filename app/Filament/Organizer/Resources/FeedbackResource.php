@@ -199,10 +199,12 @@ final class FeedbackResource extends Resource
         $user = auth()->user();
         $organisationId = $user->organisations()->first()?->id;
 
-        return static::getEloquentQuery()
+        $count = static::getEloquentQuery()
             ->whereHas('event', function (Builder $query) use ($organisationId) {
                 $query->where('organisation_id', $organisationId);
             })
             ->count();
+
+        return $count > 0 ? (string) $count : null;
     }
 }
